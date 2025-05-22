@@ -85,11 +85,8 @@ class PatientController extends Controller
         $user = User::create([
             'name'       => $request->first_name . ' ' . $request->last_name,
             'email'      => $request->email,
-            'password'   => $request->password, // or generate a default password
-            'is_admin'   => false, // non-admin user
-            'is_doctor'  => false,
+            'password'   => $request->password, // or generate a default passwor
             'is_patient' => true,
-            'is_donor'   => false,
         ]);
 
         $patient = Patient::create([
@@ -124,7 +121,50 @@ class PatientController extends Controller
 
         ], 201);
     }
+    public function update(Request $request, $id): JsonResponse
+    {
+        $patient = Patient::find($id);
 
+        if (! $patient) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Patient not found'
+            ], 404);
+        }
+
+        $validator = $request->validate([
+            'first_name'        => 'nullable|string|max:255',
+            'father_name'       => 'nullable|string|max:255',
+            'last_name'         => 'nullable|string|max:255',
+            'gender'            => 'nullable|in:male,female',
+            'birth_date'        => 'nullable|date',
+            'national_number'   => 'nullable|string|unique:patients,national_number,' . $patient->id,
+            'address'           => 'nullable|string|max:255',
+            'phone'             => 'nullable|string|unique:patients,phone,' . $patient->id,
+            'email'             => 'nullable|email|unique:patients,email,' . $patient->id,
+            'social_status'     => 'nullable|string',
+            'emergency_num'     => 'nullable|string|max:20',
+            'insurance_company' => 'nullable|string|max:255',
+            'insurance_num'     => 'nullable|string|max:50',
+            'smoker'            => 'nullable|boolean',
+            'pregnant'          => 'nullable|boolean',
+            'blood_type'        => 'nullable|string|max:3',
+            'genetic_diseases'  => 'nullable|string',
+            'chronic_diseases'  => 'nullable|string',
+            'drug_allergy'      => 'nullable|string',
+            'last_operations'   => 'nullable|string',
+            'present_medicines' => 'nullable|string',
+            'status'            => 'nullable'
+
+        ]);
+        $patient->update($validator);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Patient updated successfully',
+            'data' => $patient
+        ], 200);
+    }
 
     /**
      * Remove the specified patient from storage.

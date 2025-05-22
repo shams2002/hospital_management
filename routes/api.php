@@ -1,7 +1,15 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AppointmentController as AdminAppointmentController;
+use App\Http\Controllers\Api\Admin\AppointmentRequestController as AdminAppointmentRequestController;
+use App\Http\Controllers\Api\Admin\ConsultationController as AdminConsultationController;
+use App\Http\Controllers\Api\Admin\DiseaseController as AdminDiseaseController;
+use App\Http\Controllers\Api\Admin\DoctorController as AdminDoctorController;
+use App\Http\Controllers\Api\Admin\DonationController as AdminDonationController;
+use App\Http\Controllers\Api\Admin\DonorController as AdminDonorController;
+use App\Http\Controllers\Api\Admin\PatientController as AdminPatientController;
+use App\Http\Controllers\Api\Admin\SpecialityController as AdminSpecialityController;
 use App\Http\Controllers\Api\AdminAuthController;
-use App\Http\Controllers\Api\AnswerController;
 use App\Http\Controllers\Api\ConsultationController;
 use App\Http\Controllers\Api\DoctorAuthController;
 use Illuminate\Http\Request;
@@ -11,12 +19,20 @@ use App\Http\Controllers\Api\DonorAuthController;
 use App\Http\Controllers\Api\DonorController;
 use App\Http\Controllers\Api\PatientAuthController;
 use App\Http\Controllers\Api\PatientController;
-use App\Http\Controllers\Api\SpecialtyController;
 use App\Http\Controllers\Api\AppointmentRequestController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\DiseaseController;
+use App\Http\Controllers\Api\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Api\Doctor\ConsultationController as DoctorConsultationController;
 use App\Http\Controllers\Api\DonationController;
+use App\Http\Controllers\Api\Donor\DiseaseController as DonorDiseaseController;
+use App\Http\Controllers\Api\Donor\DonationController as DonorDonationController;
+use App\Http\Controllers\Api\Donor\DonorController as DonorDonorController;
+use App\Http\Controllers\Api\Patient\AppointmentController as PatientAppointmentController;
+use App\Http\Controllers\Api\Patient\AppointmentRequestController as PatientAppointmentRequestController;
+use App\Http\Controllers\Api\Patient\ConsultationController as PatientConsultationController;
+use App\Http\Controllers\Api\Patient\DiseaseController as PatientDiseaseController;
+use App\Http\Controllers\Api\Patient\PatientController as PatientPatientController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -26,7 +42,7 @@ Route::post('/doctor/login', [DoctorAuthController::class, 'login']);
 
 Route::middleware(['isDoctor', 'auth:sanctum'])->group(function () {
     Route::post('/doctor/logout', [DoctorAuthController::class, 'logout']);
-    Route::post('/doctor/answers', [AnswerController::class, 'store']);
+
     Route::get('/doctor/consultations', [DoctorConsultationController::class, 'getAuthDoctorConsultations']);
 });
 Route::post('/admin/login', [AdminAuthController::class, 'login']);
@@ -45,12 +61,12 @@ Route::middleware(['isAdmin', 'auth:sanctum'])->prefix('/admin/doctors')->group(
 
 
 Route::middleware(['isAdmin', 'auth:sanctum'])->prefix('/admin/specialties')->group(function () {
-    Route::post('/store', [SpecialtyController::class, 'store']);
-    Route::get('/', [SpecialtyController::class, 'index']);
-    Route::get('/{id}', [SpecialtyController::class, 'show']);
+    Route::post('/store', [AdminSpecialityController::class, 'store']);
+    Route::get('/', [AdminSpecialityController::class, 'index']);
+    Route::get('/{id}', [AdminSpecialityController::class, 'show']);
 
-    Route::put('/update/{id}', [SpecialtyController::class, 'update']);
-    Route::delete('/delete/{id}', [SpecialtyController::class, 'destroy']);
+    Route::put('/update/{id}', [AdminSpecialityController::class, 'update']);
+    Route::delete('/delete/{id}', [AdminSpecialityController::class, 'destroy']);
 });
 
 
@@ -72,13 +88,9 @@ Route::prefix('donor')->group(function () {
         Route::post('/logout', [DonorAuthController::class, 'logout']);
     });
 });
-Route::middleware(['auth:sanctum', 'IsAdmin'])->prefix('admin/patients')->group(function () {
-    Route::get('/', [PatientController::class, 'index']);
-    Route::get('/{id}', [PatientController::class, 'show']);
-    Route::delete('/{id}', [PatientController::class, 'destroy']);
-});
 
-Route::middleware(['auth:sanctum', 'IsAdmin'])->prefix('admin/donors')->group(function () {
+
+Route::middleware(['auth:sanctum', 'isAdmin'])->prefix('admin/donors')->group(function () {
     Route::get('/', [DonorController::class, 'index']);
     Route::get('/{id}', [DonorController::class, 'show']);
     Route::delete('/{id}', [DonorController::class, 'destroy']);
@@ -106,13 +118,13 @@ Route::middleware(['auth:sanctum', 'isAdmin'])->group(function () {
     Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
 });
 
-Route::middleware(['auth:sanctum', 'isPatient'])->group(function () {
-    Route::post('/diseases', [DiseaseController::class, 'store']);
-    Route::get('/diseases', [DiseaseController::class, 'index']);
-    Route::get('/diseases/{id}', [DiseaseController::class, 'show']);
-    Route::put('/diseases/{id}', [DiseaseController::class, 'update']);
-    Route::delete('/diseases/{id}', [DiseaseController::class, 'destroy']);
-});
+// Route::middleware(['auth:sanctum', 'isPatient'])->group(function () {
+//     Route::post('/diseases', [DiseaseController::class, 'store']);
+//     Route::get('/diseases', [DiseaseController::class, 'index']);
+//     Route::get('/diseases/{id}', [DiseaseController::class, 'show']);
+//     Route::put('/diseases/{id}', [DiseaseController::class, 'update']);
+//     Route::delete('/diseases/{id}', [DiseaseController::class, 'destroy']);
+// });
 
 Route::middleware(['auth:sanctum', 'isAdmin'])->put('/diseases/{id}/admin', [DiseaseController::class, 'adminUpdate']);
 Route::middleware(['auth:sanctum', 'is_donor'])->group(function () {
@@ -124,4 +136,109 @@ Route::middleware(['auth:sanctum', 'is_donor'])->group(function () {
 Route::middleware(['auth:sanctum', 'isAdmin'])->group(function () {
     Route::put('/donations/{id}/admin', [DonationController::class, 'adminUpdate']);
     Route::delete('/donations/{id}', [DonationController::class, 'destroy']);
+});
+Route::middleware(['isAdmin', 'auth:sanctum'])->prefix('/admin/consultations')->group(function () {
+    Route::get('/', [AdminConsultationController::class, 'index']);
+    Route::delete('/delete/{id}', [AdminConsultationController::class, 'destroy']);
+});
+
+Route::middleware(['auth:sanctum', 'isAdmin'])->prefix('/admin/appointment-requests')->group(function () {
+    Route::get('/', [AdminAppointmentRequestController::class, 'index']);
+    Route::get('/{id}', [AdminAppointmentRequestController::class, 'show']);
+});
+Route::middleware(['isAdmin', 'auth:sanctum'])->prefix('/admin/appointments')->group(function () {
+    Route::post('/store', [AdminAppointmentController::class, 'store']);
+    Route::get('/', [AdminAppointmentController::class, 'index']);
+    Route::get('/{id}', [AdminAppointmentController::class, 'show']);
+    Route::put('/update/{id}', [AdminAppointmentController::class, 'update']);
+    Route::delete('/delete/{id}', [AdminAppointmentController::class, 'destroy']);
+});
+Route::middleware(['isAdmin', 'auth:sanctum'])->prefix('/admin/diseases')->group(function () {
+    Route::get('/', [AdminDiseaseController::class, 'index']);
+    Route::get('/{id}', [AdminDiseaseController::class, 'show']);
+    Route::put('/update/{id}', [AdminDiseaseController::class, 'update']);
+    Route::delete('/delete/{id}', [AdminDiseaseController::class, 'destroy']);
+});
+Route::middleware(['isAdmin', 'auth:sanctum'])->prefix('/admin/patients')->group(function () {
+    Route::post('/store', [AdminPatientController::class, 'store']);
+    Route::get('/', [AdminPatientController::class, 'index']);
+    Route::get('/{id}', [AdminPatientController::class, 'show']);
+    Route::put('/update/{id}', [AdminPatientController::class, 'update']);
+    Route::delete('/delete/{id}', [AdminPatientController::class, 'destroy']);
+});
+Route::middleware(['isAdmin', 'auth:sanctum'])->prefix('/admin/donors')->group(function () {
+    Route::get('/', [AdminDonorController::class, 'index']);
+    Route::get('/{id}', [AdminDonorController::class, 'show']);
+    Route::put('/update/{id}', [AdminDonorController::class, 'update']);
+    Route::delete('/delete/{id}', [AdminDonorController::class, 'destroy']);
+});
+Route::middleware(['isAdmin', 'auth:sanctum'])->prefix('/admin/donations')->group(function () {
+    Route::get('/', [AdminDonationController::class, 'index']);
+    Route::get('/{id}', [AdminDonationController::class, 'show']);
+    Route::put('/update/{id}', [AdminDonationController::class, 'update']);
+    Route::delete('/delete/{id}', [AdminDonationController::class, 'destroy']);
+});
+Route::middleware(['isAdmin', 'auth:sanctum'])->prefix('/admin/doctors')->group(function () {
+    Route::post('/store', [AdminDoctorController::class, 'store']);
+    Route::get('/', [AdminDoctorController::class, 'index']);
+    Route::get('/{id}', [AdminDoctorController::class, 'show']);
+    Route::put('/update/{id}', [AdminDoctorController::class, 'update']);
+    Route::delete('/delete/{id}', [AdminDoctorController::class, 'destroy']);
+});
+Route::middleware(['auth:sanctum', 'isDonor'])->prefix('donor')->group(function () {
+    Route::get('/', [DonorDonorController::class, 'index']);
+    Route::get('/{id}', [DonorDonorController::class, 'show']);
+    Route::put('/{id}', [DonorDonorController::class, 'update']);
+});
+Route::middleware(['auth:sanctum', 'isDonor'])->prefix('donor')->group(function () {
+    Route::get('/donations', [DonorDonationController::class, 'index']);
+    Route::post('/', [DonorDonationController::class, 'store']);
+    Route::get('/donations/{id}', [DonorDonationController::class, 'show']);
+    Route::put('/donations/{id}', [DonorDonationController::class, 'update']);
+    Route::delete('/donations/{id}', [DonorDonationController::class, 'destroy']);
+});
+
+
+Route::middleware(['auth:sanctum', 'isPatient'])->group(function () {
+    Route::get('/patients/{id}', [PatientPatientController::class, 'show']);
+    Route::put('/patients/{id}', [PatientPatientController::class, 'update']);
+});
+Route::middleware(['auth:sanctum', 'isPatient'])->prefix('patient/appointment-requests')->group(function () {
+    Route::get('/', [PatientAppointmentRequestController::class, 'index']);
+    Route::post('/store', [PatientAppointmentRequestController::class, 'store']);
+    Route::get('/{id}', [PatientAppointmentRequestController::class, 'show']);
+    Route::put('/{id}', [PatientAppointmentRequestController::class, 'update']);
+    Route::delete('/{id}', [PatientAppointmentRequestController::class, 'destroy']);
+});
+Route::middleware(['auth:sanctum', 'isPatient'])->prefix('patient/appointments')->group(function () {
+    Route::get('/', [PatientAppointmentController::class, 'index']);
+    Route::get('/{id}', [PatientAppointmentController::class, 'show']);
+    Route::put('/{id}/accept', [PatientAppointmentController::class, 'acceptAppointment']);
+    Route::put('/{id}/reject', [PatientAppointmentController::class, 'rejectAppointment']);
+});
+Route::middleware(['auth:sanctum', 'isPatient'])->prefix('patient/diseases')->group(function () {
+    Route::get('/', [PatientDiseaseController::class, 'index']);
+    Route::post('/store', [PatientDiseaseController::class, 'store']);
+    Route::get('/{id}', [PatientDiseaseController::class, 'show']);
+});
+Route::middleware(['auth:sanctum', 'isDonor'])->prefix('donor/diseases')->group(function () {
+    Route::get('/', [DonorDiseaseController::class, 'index']);
+    Route::get('/{id}', [DonorDiseaseController::class, 'show']);
+});
+Route::middleware(['isPatient', 'auth:sanctum'])->prefix('/patient/consultations')->group(function () {
+    Route::post('/store', [PatientConsultationController::class, 'store']);
+    Route::get('/', [PatientConsultationController::class, 'index']);
+    Route::get('/{id}', [PatientConsultationController::class, 'show']);
+    Route::put('/update/{id}', [PatientConsultationController::class, 'update']);
+    Route::delete('/delete/{id}', [PatientConsultationController::class, 'destroy']);
+});
+
+Route::middleware(['auth:sanctum', 'isDoctor'])->prefix('doctor')->group(function () {
+    Route::get('/consultations-by-specialty', [DoctorConsultationController::class, 'consultationsBySpecialty']);
+    Route::post('/consultations/{id}/answer', [DoctorConsultationController::class, 'answerConsultation']);
+    Route::get('/consultations/{id}/show', [DoctorConsultationController::class, 'show']);
+    Route::delete('/answers/{id}', [DoctorConsultationController::class, 'deleteAnswer']);
+});
+Route::middleware(['auth:sanctum', 'isDoctor'])->group(function () {
+    Route::get('/doctor/appointments', [DoctorAppointmentController::class, 'indexForCurrentDoctor']);
 });

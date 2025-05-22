@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -57,10 +57,7 @@ class DoctorController extends Controller
             'name' => $request->first_name . ' ' . $request->last_name,
             'email' => $request->email,
             'password' => $request->password, // or generate a default password
-            'is_admin' => false, // non-admin user
             'is_doctor' => true,
-            'is_patient' => false,
-            'is_donor' => false,
         ]);
 
         // Create the doctor profile
@@ -114,7 +111,8 @@ class DoctorController extends Controller
      */
     public function show($id)
     {
-        $doctor = Doctor::with('specialty', 'doctorShifts.day')->findOrFail($id);
+
+        $doctor = Doctor::with('specialty', 'doctorShifts.day')->find($id);
         if (!$doctor) {
             return response()->json(
                 [
@@ -138,7 +136,7 @@ class DoctorController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $doctor = Doctor::findOrFail($id);
+        $doctor = Doctor::find($id);
         if (!$doctor) {
             return response()->json(
                 [
@@ -225,7 +223,7 @@ class DoctorController extends Controller
      */
     public function destroy($id)
     {
-        $doctor = Doctor::findOrFail($id);
+        $doctor = Doctor::find($id);
         if (!$doctor) {
             return response()->json(
                 [

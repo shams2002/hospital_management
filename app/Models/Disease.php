@@ -17,6 +17,7 @@ class Disease extends Model
         'urgency_level',
         'final_time',
         'donation_status',
+        'is_shown'
     ];
     public function specialty()
     {

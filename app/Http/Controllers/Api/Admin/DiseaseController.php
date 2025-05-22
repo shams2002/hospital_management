@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Disease;
-
+use Illuminate\Support\Facades\Validator;
 
 
 class DiseaseController extends Controller
 {
+
     public function index()
     {
         $diseases = Disease::with(['doctor', 'patient', 'specialty'])->get();
@@ -20,28 +21,6 @@ class DiseaseController extends Controller
             'message' => 'Diseases retrieved successfully.',
             'data' => $diseases
         ], 200);
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'specialty_id' => 'required|exists:specialties,id',
-            'doctor_id' => 'required|exists:doctors,id',
-            'patient_status' => 'required|string',
-            'available_money' => 'required|integer',
-            'urgency_level' => 'required|string',
-            'final_time' => 'required|date',
-        ]);
-
-        $validated['patient_id'] = Auth::user()->patient->id;
-
-        $disease = Disease::create($validated);
-
-        return response()->json([
-            'status' => 201,
-            'message' => 'Disease created successfully.',
-            'data' => $disease
-        ], 201);
     }
 
     public function show($id)
@@ -64,6 +43,12 @@ class DiseaseController extends Controller
 
     public function update(Request $request, $id)
     {
+        $validator = $request->validate([
+            'needed_amount' => 'integer',
+            'donation_status' => 'string',
+            'is_shown' => 'boolean',
+
+        ]);
         $disease = Disease::find($id);
 
         if (!$disease) {
@@ -73,14 +58,7 @@ class DiseaseController extends Controller
             ], 404);
         }
 
-        if (Auth::user()->patient->id !== $disease->patient_id) {
-            return response()->json([
-                'status' => 403,
-                'message' => 'You are not authorized to update this disease.'
-            ], 403);
-        }
-
-        $disease->update($request->only(['patient_status', 'available_money', 'urgency_level', 'final_time']));
+        $disease->update($validator);
 
         return response()->json([
             'status' => 200,
@@ -108,23 +86,5 @@ class DiseaseController extends Controller
         ], 204);
     }
 
-    public function adminUpdate(Request $request, $id)
-    {
-        $disease = Disease::find($id);
 
-        if (!$disease) {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Disease not found.'
-            ], 404);
-        }
-
-        $disease->update($request->only(['needed_amount', 'donation_status']));
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Disease updated by admin.',
-            'data' => $disease
-        ], 200);
-    }
 }

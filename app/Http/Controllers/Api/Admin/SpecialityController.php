@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Specialty;
 use Illuminate\Http\Request;
 
-class SpecialtyController extends Controller
+class SpecialityController extends Controller
 {
     // عرض جميع الـ specialties
     public function index()
@@ -61,7 +61,7 @@ class SpecialtyController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'string|max:255',
 
         ]);
         $specialty = Specialty::find($id);
