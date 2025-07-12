@@ -18,7 +18,7 @@ class DonationController extends Controller
     public function index()
     {
         $donations = Donation::with('disease')
-            ->where('donor_id', Auth::id())
+            ->where('donor_id', Auth::user()->donor->id)
             ->get();
 
         return response()->json([
@@ -43,6 +43,7 @@ class DonationController extends Controller
             'donor_id' => Auth::user()->donor->id,
             'image' => $imagePath,
             'amount' => $validated['amount'],
+            'status' => "pending"
         ]);
 
 
@@ -59,7 +60,7 @@ class DonationController extends Controller
     {
         $donation = Donation::with('disease')
             ->where('id', $id)
-            ->where('donor_id', Auth::id())
+            ->where('donor_id', Auth::user()->donor->id)
             ->first();
 
         if (!$donation) {
@@ -127,7 +128,7 @@ class DonationController extends Controller
     public function destroy($id)
     {
         $donation = Donation::where('id', $id)
-            ->where('donor_id', Auth::id())
+            ->where('donor_id', Auth::user()->donor->id)
             ->first();
 
         if (!$donation) {

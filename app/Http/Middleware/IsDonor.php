@@ -16,6 +16,7 @@ class IsDonor
      */
     public function handle(Request $request, Closure $next): Response
     {
+
         if (Auth::user()->is_donor) {
             return $next($request);
         } else {

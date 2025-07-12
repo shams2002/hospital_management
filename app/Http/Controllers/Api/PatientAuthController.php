@@ -59,6 +59,7 @@ class PatientAuthController extends Controller
             'is_doctor'  => false,
             'is_patient' => true,
             'is_donor'   => false,
+            
         ]);
 
         $patient = Patient::create([
@@ -121,7 +122,8 @@ class PatientAuthController extends Controller
             'status' => 200,
             'message' => 'Login successful',
             'token' => $token,
-            'user_id' => $user->id
+            'user_id' => $user->id,
+            "is_patien" => $user->is_patient
         ], 200);
     }
 

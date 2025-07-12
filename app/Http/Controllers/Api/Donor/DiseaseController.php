@@ -11,6 +11,7 @@ class DiseaseController extends Controller
 
     public function index()
     {
+
         $diseases = Disease::with(['doctor', 'patient', 'specialty'])->where('is_shown', true)->get();
 
         return response()->json([
@@ -24,19 +25,20 @@ class DiseaseController extends Controller
     {
         $disease = Disease::find($id);
 
-        if ($disease->is_shown !== true) {
-            return response()->json([
-                'status' => 400,
-                'message' => 'Disease not verified.'
-            ], 400);
-        }
-
         if (!$disease) {
             return response()->json([
                 'status' => 404,
                 'message' => 'Disease not found.'
             ], 404);
         }
+
+        if ($disease->is_shown !== 1) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Disease not verified.'
+            ], 400);
+        }
+
 
         return response()->json([
             'status' => 200,

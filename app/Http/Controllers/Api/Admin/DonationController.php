@@ -43,7 +43,7 @@ class DonationController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'numeric|min:0',
-            'status' => 'string|in:pending,approved,rejected',
+            'status' => 'string|in:pending,accepted,rejected',
         ]);
 
         $donation = Donation::find($id);
@@ -82,8 +82,18 @@ class DonationController extends Controller
         ], 200);
     }
 
-    public function acceptDonation(Request $request, Donation $donation)
+    public function acceptDonation(Request $request,  $donation)
     {
+
+        $donation = Donation::find($donation);
+
+        if (!$donation) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Donation not found.'
+            ], 404);
+        }
+
         // /admin/donations/{donation}/accept
         $validated = $request->validate([
             'amount' => 'required|integer|min:1',
@@ -104,9 +114,18 @@ class DonationController extends Controller
             'data' => $donation
         ], 201);
     }
-    public function rejectDonation(Request $request, Donation $donation)
+    public function rejectDonation(Request $request,  $donation)
     {
-        $donation->update(["status" => "reject"]);
+
+        $donation = Donation::find($donation);
+
+        if (!$donation) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Donation not found.'
+            ], 404);
+        }
+        $donation->update(["status" => "rejected"]);
 
         return response()->json([
             'status' => 201,
