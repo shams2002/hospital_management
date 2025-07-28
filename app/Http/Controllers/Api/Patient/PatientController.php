@@ -36,15 +36,15 @@ class PatientController extends Controller
     /**
      * Show specific patient if authorized.
      */
-    public function show($id): JsonResponse
+    public function show(): JsonResponse
     {
-        $patient = Patient::find($id);
+        $patient = Patient::where('user_id', Auth::id())->first();
 
-        if (!$patient || $patient->user_id !==  Auth::id()) {
+        if (!$patient) {
             return response()->json([
-                'status' => 403,
-                'message' => 'Unauthorized or patient not found'
-            ], 403);
+                'status' => 404,
+                'message' => 'Patient not found for current user'
+            ], 404);
         }
 
         return response()->json([
@@ -137,15 +137,16 @@ class PatientController extends Controller
     /**
      * Update a patient's information (only if authenticated and matches user).
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request): JsonResponse
     {
-        $patient = Patient::find($id);
+        $patient = Patient::where('user_id', Auth::id())->first();
 
-        if (!$patient || $patient->user_id !==  Auth::id()) {
+
+        if (!$patient) {
             return response()->json([
-                'status' => 403,
-                'message' => 'Unauthorized or patient not found'
-            ], 403);
+                'status' => 404,
+                'message' => 'Patient not found for current user'
+            ], 404);
         }
 
         $validator = $request->validate([

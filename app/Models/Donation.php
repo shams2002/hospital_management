@@ -14,6 +14,11 @@ class Donation extends Model
         'status',
 
     ];
+    protected $appends = ["image_url"];
+    public function getImageUrlAttribute()
+    {
+        return asset('/storage/uploads/' . $this->image);
+    }
     public function disease()
     {
         return $this->belongsTo(Disease::class);

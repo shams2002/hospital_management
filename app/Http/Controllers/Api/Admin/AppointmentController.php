@@ -14,7 +14,7 @@ class AppointmentController extends Controller
 
     public function index()
     {
-        $appointments = Appointment::with('doctor', 'patient')->get();
+        $appointments = Appointment::with('doctor', 'patient', 'specialty')->get();
         return response()->json([
             'status' => 200,
             'message' => 'Appointments fetched successfully.',
@@ -62,7 +62,7 @@ class AppointmentController extends Controller
 
     public function show($id)
     {
-        $appointment = Appointment::with('doctor', 'patient')->find($id);
+        $appointment = Appointment::with('doctor', 'patient', 'specialty')->find($id);
 
         if (!$appointment) {
             return response()->json([
@@ -133,5 +133,4 @@ class AppointmentController extends Controller
             'message' => 'Appointment deleted successfully'
         ], 200);
     }
-
 }

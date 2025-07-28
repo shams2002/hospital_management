@@ -15,12 +15,15 @@ class IsPatient
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
-    { if(Auth::user()->is_patient){
-        
-        return $next($request);
-    }
-        else{
-            abort(403);
+    {
+        if (Auth::user()->is_patient) {
+
+            return $next($request);
+        } else {
+            return response()->json([
+                "code" => 403,
+                "message" => "unauth",
+            ], 403);
         }
     }
 }

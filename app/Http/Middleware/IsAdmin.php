@@ -17,10 +17,12 @@ class IsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check() && Auth::user()->is_admin) {
-
             return $next($request);
         } else {
-            abort(403);
+            return response()->json([
+                "code" => 403,
+                "message" => "unauth",
+            ], 403);
         }
     }
 }

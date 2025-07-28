@@ -27,7 +27,7 @@ class Doctor extends Model
     protected $appends = ["image_url"];
     public function getImageUrlAttribute()
     {
-        return url('/storage/uploads/' . $this->image);
+        return asset('/storage/uploads/' . $this->image);
     }
     public function specialty()
     {

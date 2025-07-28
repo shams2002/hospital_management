@@ -20,7 +20,10 @@ class IsDonor
         if (Auth::user()->is_donor) {
             return $next($request);
         } else {
-            abort(403);
+            return response()->json([
+                "code" => 403,
+                "message" => "unauth",
+            ], 403);
         }
     }
 }

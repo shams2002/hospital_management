@@ -21,8 +21,10 @@ use App\Http\Controllers\Api\Patient\DiseaseController as PatientDiseaseControll
 use App\Http\Controllers\Api\Patient\PatientController as PatientPatientController;
 
 use App\Http\Controllers\Api\AdminAuthController;
+use App\Http\Controllers\Api\Doctor\ProfileController;
 use App\Http\Controllers\Api\DoctorAuthController;
 use App\Http\Controllers\Api\DonorAuthController;
+use App\Http\Controllers\Api\Patient\DoctorBySpecialityController;
 use App\Http\Controllers\Api\PatientAuthController;
 
 use Illuminate\Support\Facades\Route;
@@ -138,8 +140,8 @@ Route::middleware(['auth:sanctum', 'isDonor'])->prefix('donor')->group(function 
 
 
 Route::middleware(['auth:sanctum', 'isPatient'])->group(function () {
-    Route::get('/patients/{id}', [PatientPatientController::class, 'show']);
-    Route::put('/patients/{id}', [PatientPatientController::class, 'update']);
+    Route::get('/patients/profile', [PatientPatientController::class, 'show']);
+    Route::put('/patients/profile', [PatientPatientController::class, 'update']);
 });
 Route::middleware(['auth:sanctum', 'isPatient'])->prefix('patient/appointment-requests')->group(function () {
     Route::get('/', [PatientAppointmentRequestController::class, 'index']);
@@ -176,4 +178,18 @@ Route::middleware(['auth:sanctum', 'isDoctor'])->prefix('doctor')->group(functio
 });
 Route::middleware(['auth:sanctum', 'isDoctor'])->group(function () {
     Route::get('/doctor/appointments', [DoctorAppointmentController::class, 'indexForCurrentDoctor']);
+});
+Route::middleware(['isDoctor', 'auth:sanctum'])->prefix('/doctor/specialties')->group(function () {
+
+    Route::get('/', [AdminSpecialityController::class, 'index']);
+});
+Route::middleware(['isPatient', 'auth:sanctum'])->prefix('/patient/specialties')->group(function () {
+
+    Route::get('/', [AdminSpecialityController::class, 'index']);
+});
+Route::middleware(['auth:sanctum', 'isDoctor'])->group(function () {
+    Route::get('/doctor/profile', [ProfileController::class, 'profile']);
+});
+Route::middleware(['auth:sanctum', 'isPatient'])->group(function () {
+    Route::get('/patient/doctorbyspeciality/{id}', [DoctorBySpecialityController::class, 'show']);
 });

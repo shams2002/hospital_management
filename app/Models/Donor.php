@@ -19,6 +19,7 @@ class Donor extends Model
         'email',
         'country',
     ];
+
     //
     public function user()
     {
