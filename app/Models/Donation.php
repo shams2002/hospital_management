@@ -17,7 +17,7 @@ class Donation extends Model
     protected $appends = ["image_url"];
     public function getImageUrlAttribute()
     {
-        return asset('/storage/uploads/' . $this->image);
+        return asset('/storage/' . $this->image);
     }
     public function disease()
     {

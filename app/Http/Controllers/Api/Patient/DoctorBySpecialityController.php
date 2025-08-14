@@ -12,7 +12,7 @@ class DoctorBySpecialityController extends Controller
     {
         $doctors = Doctor::with('specialty')
             ->where('specialty_id', $id)
-            ->select('first_name', 'father_name', 'last_name', 'specialty_id')
+            ->select('first_name', 'father_name', 'last_name', 'specialty_id', 'id')
             ->get();
 
         return response()->json([

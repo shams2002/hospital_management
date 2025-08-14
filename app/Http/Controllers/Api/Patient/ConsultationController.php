@@ -45,6 +45,30 @@ class ConsultationController extends Controller
             'data' => $consultation
         ], 200);
     }
+    /**
+     * Display consultations of the currently authenticated patient.
+     */
+    public function myConsultations()
+    {
+        $patient = Auth::user()->patient;
+
+        if (!$patient) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'Unauthorized: Only patients can view their consultations.'
+            ], 403);
+        }
+
+        $consultations = Consultation::with(['specialty', 'answers.doctor.user'])
+            ->where('patient_id', $patient->id)
+            ->get();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Your consultations retrieved successfully.',
+            'data' => $consultations
+        ], 200);
+    }
 
     /**
      * Store a new consultation by the currently authenticated patient.

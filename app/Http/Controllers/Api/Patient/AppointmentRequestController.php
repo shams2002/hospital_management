@@ -12,7 +12,12 @@ class AppointmentRequestController extends Controller
 
     public function index()
     {
-        $requests = AppointmentRequest::where('patient_id', Auth::user()->patient->id)->get();
+        $requests = AppointmentRequest::with([
+            'specialty',
+            'doctor.user',
+            'patient.user'
+        ])
+            ->where('patient_id', Auth::user()->patient->id)->get();
 
         return response()->json([
             'status' => 200,

@@ -12,7 +12,7 @@ class DonationController extends Controller
 
     public function index()
     {
-        $donations = Donation::with(['disease', 'donor'])->get();
+        $donations = Donation::with(['disease.patient', 'donor'])->get();
 
         return response()->json([
             'status' => 200,
@@ -22,7 +22,7 @@ class DonationController extends Controller
     }
     public function show($id)
     {
-        $donation = Donation::with(['disease', 'donor'])->find($id);
+        $donation = Donation::with(['disease.patient', 'donor'])->find($id);
 
         if (!$donation) {
             return response()->json([
@@ -100,13 +100,33 @@ class DonationController extends Controller
         ]);
 
         $disease = $donation->disease;
-        $collected_amount = $disease->collected_amount += $validated['amount'];
-        if ($disease->needed_amount <= $collected_amount) {
+        // زيادة القيمة بشكل واضح
+        $disease->collected_amount += $validated['amount'];
+
+        // تحقق من اكتمال التبرع
+        if ($disease->collected_amount >= $disease->needed_amount) {
             $disease->donation_status = "completed";
+
+            // حساب الفائض
+            $overflow = $disease->collected_amount - $disease->needed_amount;
+
+            if ($overflow > 0 && $disease->user) {
+                // تحديث extra_money للمستخدم
+                $disease->user->extra_money += $overflow;
+                $disease->user->save();
+
+                // خصم الفائض من collected_amount حتى لا يظهر أكثر من المطلوب
+                $disease->collected_amount = $disease->needed_amount;
+            }
         }
+
         $disease->save();
 
-        $donation->update(["status" => "accepted"]);
+        // تحديث حالة التبرع و قيمة amount
+        $donation->update([
+            'status' => 'accepted',
+            'amount' => $validated['amount'],  // تحديث amount هنا
+        ]);
 
         return response()->json([
             'status' => 201,

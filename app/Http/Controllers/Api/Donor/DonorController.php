@@ -81,16 +81,15 @@ class DonorController extends Controller
     /**
      * Display the authenticated donor profile by ID (if it belongs to user).
      */
-    public function show($id): JsonResponse
+    public function show(): JsonResponse
     {
         $user = Auth::user();
 
-        $donor = Donor::where('id', $id)->where('user_id', $user->id)->first();
-
+        $donor = Donor::where('user_id', $user->id)->first();
         if (!$donor) {
             return response()->json([
                 'status' => 404,
-                'message' => 'Donor not found or unauthorized.'
+                'message' => 'Donor not found for the current user.'
             ], 404);
         }
 
@@ -104,16 +103,16 @@ class DonorController extends Controller
     /**
      * Update the authenticated donor profile.
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request): JsonResponse
     {
         $user = Auth::user();
 
-        $donor = Donor::where('id', $id)->where('user_id', $user->id)->first();
+        $donor = Donor::where('user_id', $user->id)->first();
 
         if (!$donor) {
             return response()->json([
                 'status' => 404,
-                'message' => 'Donor not found or unauthorized.'
+                'message' => 'Donor not found for the current user.'
             ], 404);
         }
 

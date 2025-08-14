@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'extra_money',
         'is_admin',
         'is_doctor',
         'is_patient',

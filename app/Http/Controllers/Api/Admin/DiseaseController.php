@@ -12,9 +12,16 @@ use Illuminate\Support\Facades\Validator;
 class DiseaseController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $diseases = Disease::with(['doctor', 'patient', 'specialty'])->get();
+        $query = Disease::with(['doctor', 'patient', 'specialty']);
+
+        // Filter by status if provided
+        if ($request->has('donation_status')) {
+            $query->where('donation_status', $request->status);
+        }
+
+        $diseases = $query->get();
 
         return response()->json([
             'status' => 200,
@@ -85,6 +92,4 @@ class DiseaseController extends Controller
             'message' => 'Disease deleted successfully.'
         ], 204);
     }
-
-
 }

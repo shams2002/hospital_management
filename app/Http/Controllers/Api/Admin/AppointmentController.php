@@ -30,7 +30,6 @@ class AppointmentController extends Controller
             'doctor_id' => 'required|exists:doctors,id',
             'work_day' => 'required|string',
             'work_time' => 'required|string',
-            'meet_status' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -50,7 +49,7 @@ class AppointmentController extends Controller
             'work_day' => $request->work_day,
             'work_time' => $request->work_time,
             'meet_cost' => $doctor->meet_cost,
-            'meet_status' => $request->meet_status
+            'meet_status' => "scheduled"
         ]);
 
         return response()->json([
@@ -96,7 +95,7 @@ class AppointmentController extends Controller
             'doctore_id' => 'sometimes|exists:doctors,id',
             'work_day' => 'sometimes|string',
             'work_time' => 'sometimes|string',
-            'meet_status' => 'sometimes|string'
+            'status' => 'sometimes|in:rescheduled,done'
         ]);
 
         // Optional: Custom check to prevent assigning same doctor again
@@ -106,7 +105,11 @@ class AppointmentController extends Controller
             ], 422);
         }
 
+
+        // Update the appointment
         $appointment->update($validator);
+
+
 
         return response()->json([
             'status' => 200,

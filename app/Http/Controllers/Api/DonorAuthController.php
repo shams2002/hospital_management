@@ -90,13 +90,16 @@ class DonorAuthController extends Controller
             ], 403);
         }
 
+        // جلب بيانات المتبرع المرتبط بالمستخدم
+        $donor = Donor::where('user_id', $user->id)->first();
         $token = $user->createToken('donor-token')->plainTextToken;
 
         return response()->json([
             'status' => 200,
             'message' => 'Login successful',
             'token' => $token,
-            'user_id' => $user->id
+            'user_id' => $user->id,
+            'donor_id' => $donor ? $donor->id : null,  // حقل id للمتبرع
         ], 200);
     }
 

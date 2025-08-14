@@ -133,8 +133,8 @@ Route::middleware(['auth:sanctum', 'isDonor'])->prefix('donor/donations')->group
 });
 
 Route::middleware(['auth:sanctum', 'isDonor'])->prefix('donor')->group(function () {
-    Route::get('/{id}', [DonorDonorController::class, 'show']);
-    Route::put('/{id}', [DonorDonorController::class, 'update']);
+    Route::get('/profile', [DonorDonorController::class, 'show']);
+    Route::put('/profile', [DonorDonorController::class, 'update']);
 });
 
 
@@ -164,6 +164,7 @@ Route::middleware(['auth:sanctum', 'isPatient'])->prefix('patient/diseases')->gr
 
 Route::middleware(['isPatient', 'auth:sanctum'])->prefix('/patient/consultations')->group(function () {
     Route::post('/store', [PatientConsultationController::class, 'store']);
+    Route::get('/my-consultations', [PatientConsultationController::class, 'myConsultations']);
     Route::get('/', [PatientConsultationController::class, 'index']);
     Route::get('/{id}', [PatientConsultationController::class, 'show']);
     Route::put('/update/{id}', [PatientConsultationController::class, 'update']);
